@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+    <util:properties id="propSource" location="classpath:/resources/db_settings.properties"/>
+    <bean id="dataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="#{propSource[driverClassName]}"/>
+        <property name="url" value="#{propSource[url]}"/>
+        <property name="username" value="#{propSource[username]}"/>
+        <property name="password" value="#{propSource[password]}"/>
+    </bean>
+    <bean id="accountDbDataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="#{propSource[driverClassName]}"/>
+        <property name="url" value="#{propSource[account_url]}"/>
+        <property name="username" value="#{propSource[account_username]}"/>
+        <property name="password" value="#{propSource[account_password]}"/>
+    </bean>
+    <!-- Initialization for TransactionManager -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource"
+                  ref="dataSource"/>
+    </bean>
+    <bean id="accountDbTransactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource"
+                  ref="accountDbDataSource"/>
+    </bean>
+
+</beans>
