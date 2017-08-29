@@ -1,4 +1,4 @@
-package org.requester;
+package org.http.data_getter.requester;
 
 import java.io.BufferedReader;
 import java.io.IOException;

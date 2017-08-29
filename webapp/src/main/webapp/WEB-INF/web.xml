@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://java.sun.com/xml/ns/javaee" xmlns:security="http://www.springframework.org/schema/security"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
-http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-         id="WebApp_ID" version="3.0">
+         xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:security="http://www.springframework.org/schema/security"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         id="WebApp_ID" version="4.0">
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
@@ -13,6 +14,7 @@ http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
         <param-name>contextConfigLocation</param-name>
         <param-value>
             /WEB-INF/BackendServlet-servlet.xml
+            /WEB-INF/WebContentServlet-servlet.xml
             /WEB-INF/classes/resources/beans/*.xml
         </param-value>
     </context-param>
@@ -37,9 +39,27 @@ http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 
         <load-on-startup>1</load-on-startup>
     </servlet>
+    <servlet>
+        <servlet-name>WebContentServlet</servlet-name>
+        <servlet-class>
+            org.springframework.web.servlet.DispatcherServlet
+        </servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>
+                WEB-INF/WebContentServlet-servlet.xml
+            </param-value>
+        </init-param>
+
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>BackendServlet</servlet-name>
+        <url-pattern>/rest/</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WebContentServlet</servlet-name>
         <url-pattern>/</url-pattern>
     </servlet-mapping>
     <security-constraint>

@@ -1,5 +1,7 @@
 package org.webcontent;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.data_getters.DataGetter;
 import org.data_getters.dao.AppLogin;
 import org.data_getters.dao.StatisticClauseFields;
@@ -30,6 +32,7 @@ import java.util.stream.IntStream;
  * Created by chmel on 18.02.17.
  */
 @Controller
+@RequestMapping("/rest")
 public class BackendServletController {
 
     private JSONObject formSourceUpdateResponse(String status, java.util.Date date) {
@@ -45,11 +48,12 @@ public class BackendServletController {
     public ResponseEntity<String> updateSources(ModelMap model,
                                                 @RequestParam(value = "username", required = true) String userName,
                                                 @RequestParam(value = "__token", required = true) String token) throws ParseException {
+        Log log = LogFactory.getLog(BackendServletController.class);
         HashMap<String, String> tokenAuthRes = new TokenAuthDao(userName, token).checkAdminAccess();
         JSONObject res = new JSONObject();
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-        HttpStatus hs;
+        HttpStatus hs = HttpStatus.OK;
 
         if (tokenAuthRes.get("status").equals(LoginStatus.FAILURE.toString())) {
             res.putAll(tokenAuthRes);
@@ -61,21 +65,23 @@ public class BackendServletController {
             ApplicationContext dataWriterContext = new ClassPathXmlApplicationContext("beans/DataWriter.xml");
             DBPuller dp = (DBPuller) dataWriterContext.getBean("DPPuller");
             try {
+                log.info("Updating Death by Environment Statistic");
                 dp.insert("death_by_environment", death_by_environment_statistic);
+                log.info("Updating Life Expectancy Statistic");
                 dp.insert("life_expectancy", life_expecatncy_statistic);
+                log.info("Updating Tobacco Usage Statistic");
                 dp.insert("tobacco_usage", tobacco_usage_statistic);
                 res = this.formSourceUpdateResponse("Success", new java.util.Date());
             } catch (Exception ex) {
                 model.addAttribute("source_update_status", "Failure");
                 model.addAttribute("date", new java.util.Date().toString());
                 res = this.formSourceUpdateResponse("Failure", new java.util.Date());
+                res.put("exception", ex.getMessage());
                 hs = HttpStatus.INTERNAL_SERVER_ERROR;
             }
             res.putAll(tokenAuthRes);
         }
 
-
-        hs = HttpStatus.OK;
         return new ResponseEntity<>(res.toJSONString(), responseHeaders, hs);
     }
 
@@ -94,6 +100,22 @@ public class BackendServletController {
 
         String resultJson = res.toJSONString();
         return new ResponseEntity<>(resultJson, responseHeaders, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/check_login", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @ResponseBody
+    public ResponseEntity<String> checkLogin(ModelMap loginModel,
+                                        @RequestParam(value = "username", required = true) String userName,
+                                        @RequestParam(value = "__token", required = true) String token) {
+        JSONObject jo = new JSONObject();
+        TokenAuthDao _tokenAuthDao = new TokenAuthDao(userName, token);
+        HashMap<String, String> tokenAuthRes = _tokenAuthDao.checkLogin();
+        jo.put("status", tokenAuthRes.get("status"));
+        jo.put("reason", tokenAuthRes.get("reason"));
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        return new ResponseEntity<>(jo.toJSONString(), responseHeaders, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/logout", method = RequestMethod.POST, produces = "application/json; charset=utf-8")

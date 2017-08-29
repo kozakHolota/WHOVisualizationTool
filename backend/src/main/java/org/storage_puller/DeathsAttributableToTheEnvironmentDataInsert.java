@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -12,6 +13,11 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.storage_puller.insert_data_models.DataModel;
 import org.storage_puller.insert_data_models.DeathsAttributableToTheEnvironmentDataModel;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -36,28 +42,34 @@ public class DeathsAttributableToTheEnvironmentDataInsert implements DataInsert 
     }
 
     @Override
-    public void insert(DataModel dm) {
-        DeathsAttributableToTheEnvironmentDataModel dataModel = (DeathsAttributableToTheEnvironmentDataModel) dm;
+    public void insert(List<DataModel> dms) {
+        List<DeathsAttributableToTheEnvironmentDataModel> dataModels = new ArrayList<>();
+        dms.forEach(model->dataModels.add((DeathsAttributableToTheEnvironmentDataModel) model));
         TransactionDefinition def = new DefaultTransactionDefinition();
         TransactionStatus status = transactionManager.getTransaction(def);
         JdbcTemplate jdbcTemplateObj = this.jdbcTemplateObject();
-        Integer year_id = this.dbHelper.getYearId(dataModel.getYear());
-        Integer country_id = this.dbHelper.getCountryId(dataModel.getCountry(), dataModel.getRegion());
-        Supplier<Integer> getDataId = () -> (Integer) jdbcTemplateObj.queryForObject("SELECT id FROM tobacco_usage_statistic WHERE year_id=? AND country_id = ? AND measurenment=?", Integer.class, year_id, country_id, dataModel.getMeasurenment());
-        String insertSQL = "INSERT INTO tobacco_usage_statistic (country_id, measurenment, year_id) VALUES (?, ?, ?)";
-        try {
-            getDataId.get();
-        } catch (EmptyResultDataAccessException eae) {
+        String insertSQL = "INSERT IGNORE INTO tobacco_usage_statistic (country_id, measurenment, year_id) VALUES (?, ?, ?)";
+
             try {
-                jdbcTemplateObj.update(insertSQL, country_id, dataModel.getMeasurenment(), year_id);
+                jdbcTemplateObj.batchUpdate(insertSQL, new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        DeathsAttributableToTheEnvironmentDataModel dataModel = dataModels.get(i);
+                        ps.setInt(1, dbHelper.getCountryId(dataModel.getCountry(), dataModel.getRegion()));
+                        ps.setDouble(2, dataModel.getMeasurenment());
+                        ps.setInt(3, dbHelper.getYearId(dataModel.getYear()));
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return dataModels.size();
+                    }
+                });
                 this.transactionManager.commit(status);
             } catch (DataAccessException e) {
                 log.error("Error in creating record, rolling back");
                 transactionManager.rollback(status);
                 throw e;
             }
-        }
-
-
     }
 }

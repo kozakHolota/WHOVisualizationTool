@@ -5,6 +5,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.storage_puller.insert_data_models.DataModel;
 
+import java.util.List;
+
 /**
  * Created by chmel on 31.12.16.
  */
@@ -17,5 +19,5 @@ public interface DataInsert {
         return JdbcTemplateGetter.getJdbcTemplate();
     }
 
-    public void insert(DataModel dm);
+    public void insert(List<DataModel> dms);
 }

@@ -45,14 +45,23 @@ public class DBPuller {
 
     public void insert(String arg, ArrayList<Hashtable<String, String>> data) {
         DataInsert dataInserter = this.getDataInserter(arg);
+        ArrayList<DataModel> dms = new ArrayList<>();
         data.forEach((Hashtable<String, String> dat) -> {
             log.debug(dat);
             DataModel dm = this.getDataModel(arg, dat);
             try {
-                dataInserter.insert(dm);
+                //dataInserter.insert(dm);
+                dms.add(dm);
             } catch (NullPointerException npe) {
                 npe.printStackTrace();
             }
         });
+
+        try {
+            dataInserter.insert(dms);
+        } catch (NullPointerException npe) {
+            npe.printStackTrace();
+        }
+
     }
 }
