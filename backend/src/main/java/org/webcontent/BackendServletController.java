@@ -28,6 +28,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.data_getters.dao.NecessaryDataHelper.*;
+
 /**
  * Created by chmel on 18.02.17.
  */
@@ -154,6 +156,7 @@ public class BackendServletController {
             ) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException
     {
         JSONObject jo = new JSONObject();
+        HttpStatus status = HttpStatus.OK;
         HashMap<String, String> tokenAuthRes = new TokenAuthDao(userName, token).checkLogin();
         if (tokenAuthRes.get("status").equals(LoginStatus.SUCCESS.toString())){
             DataGetter dg = new DataGetter(main_chart_name, second_chart_name);
@@ -167,10 +170,112 @@ public class BackendServletController {
         } else {
             jo.put("status", tokenAuthRes.get("status"));
             jo.put("reason", tokenAuthRes.get("reason"));
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
 
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(jo.toJSONString(), responseHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(jo.toJSONString(), responseHeaders, status);
+    }
+
+    @RequestMapping(value = "/get_years", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @ResponseBody
+    public ResponseEntity<String> get_years(
+            ModelMap loginModel,
+            @RequestParam(value = "username", required = true) String userName,
+            @RequestParam(value = "__token", required = true) String token){
+        JSONObject jo = new JSONObject();
+        HashMap<String, String> tokenAuthRes = new TokenAuthDao(userName, token).checkLogin();
+        HttpStatus status = HttpStatus.OK;
+        if (tokenAuthRes.get("status").equals(LoginStatus.SUCCESS.toString())){
+            List<Integer> years = getYears();
+            Collections.sort(years);
+            jo.put("status", tokenAuthRes.get("status"));
+            jo.put("years", years);
+        } else {
+            jo.put("status", tokenAuthRes.get("status"));
+            jo.put("reason", tokenAuthRes.get("reason"));
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(jo.toJSONString(), responseHeaders, status);
+    }
+
+    @RequestMapping(value = "/get_sexes", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @ResponseBody
+    public ResponseEntity<String> get_sexes(
+            ModelMap loginModel,
+            @RequestParam(value = "username", required = true) String userName,
+            @RequestParam(value = "__token", required = true) String token){
+        JSONObject jo = new JSONObject();
+        HashMap<String, String> tokenAuthRes = new TokenAuthDao(userName, token).checkLogin();
+        HttpStatus status = HttpStatus.OK;
+        if (tokenAuthRes.get("status").equals(LoginStatus.SUCCESS.toString())){
+            List<String> sexes = getSexes();
+            Collections.sort(sexes);
+            jo.put("status", tokenAuthRes.get("status"));
+            jo.put("sexes", sexes);
+        } else {
+            jo.put("status", tokenAuthRes.get("status"));
+            jo.put("reason", tokenAuthRes.get("reason"));
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(jo.toJSONString(), responseHeaders, status);
+    }
+
+    @RequestMapping(value = "/get_regions", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @ResponseBody
+    public ResponseEntity<String> get_regions(
+            ModelMap loginModel,
+            @RequestParam(value = "username", required = true) String userName,
+            @RequestParam(value = "__token", required = true) String token){
+        JSONObject jo = new JSONObject();
+        HashMap<String, String> tokenAuthRes = new TokenAuthDao(userName, token).checkLogin();
+        HttpStatus status = HttpStatus.OK;
+        if (tokenAuthRes.get("status").equals(LoginStatus.SUCCESS.toString())){
+            List<String> regions = getRegions();
+            Collections.sort(regions);
+            jo.put("status", tokenAuthRes.get("status"));
+            jo.put("regions", regions);
+        } else {
+            jo.put("status", tokenAuthRes.get("status"));
+            jo.put("reason", tokenAuthRes.get("reason"));
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(jo.toJSONString(), responseHeaders, status);
+    }
+
+    @RequestMapping(value = "/get_countries", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @ResponseBody
+    public ResponseEntity<String> get_countries(
+            ModelMap loginModel,
+            @RequestParam(value = "username", required = true) String userName,
+            @RequestParam(value = "__token", required = true) String token,
+            @RequestParam(value = "region", required = true) String region){
+        JSONObject jo = new JSONObject();
+        HashMap<String, String> tokenAuthRes = new TokenAuthDao(userName, token).checkLogin();
+        HttpStatus status = HttpStatus.OK;
+        if (tokenAuthRes.get("status").equals(LoginStatus.SUCCESS.toString())){
+            List<String> countries = getCountries(region);
+            Collections.sort(countries);
+            jo.put("status", tokenAuthRes.get("status"));
+            jo.put("regions", countries);
+        } else {
+            jo.put("status", tokenAuthRes.get("status"));
+            jo.put("reason", tokenAuthRes.get("reason"));
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(jo.toJSONString(), responseHeaders, status);
     }
 }
