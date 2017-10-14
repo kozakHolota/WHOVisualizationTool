@@ -5,7 +5,6 @@ import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.storage_puller.DeathsAttributableToTheEnvironmentDataInsert;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -103,7 +102,7 @@ public class RestClient {
         String result = "";
         log.debug("Output from Server .... \n");
         while ((output = br.readLine()) != null) {
-            System.out.println(output);
+            log.debug(output);
             result = result.concat(output);
         }
 

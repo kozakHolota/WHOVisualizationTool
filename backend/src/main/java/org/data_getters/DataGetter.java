@@ -110,7 +110,7 @@ public class DataGetter {
         } catch (NullPointerException npe) {
             log.error("Main Chart years " + this.secondChart.getClass().getSimpleName() + " is empty");
         }
-        if (mainChartYears.isEmpty()) return noramlizedData;
+        if (mainChartYears.isEmpty() || secondChartYears.isEmpty()) return noramlizedData;
         int firstYear = (mainChartYears.get(0) > secondChartYears.get(0)) ? mainChartYears.get(0) : secondChartYears.get(0);
         int lastYear = (Iterables.getLast(mainChartYears) > Iterables.getLast(secondChartYears)) ? Iterables.getLast(secondChartYears) : Iterables.getLast(mainChartYears);
         this.log.info("Searching data between " + firstYear + " and " + lastYear + " years");

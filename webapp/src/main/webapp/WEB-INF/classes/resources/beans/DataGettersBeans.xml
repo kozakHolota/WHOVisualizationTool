@@ -4,7 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
 http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
     <!--Beans which defines Requesters-->
-    <bean id="deathByEnvironmentRequester" class="org.http.data_getter.requester.DataRequester">
+    <bean id="deathByEnvironmentRequester" class="org.http.data_getter.requester.DataRequester" lazy-init="true">
         <constructor-arg name="URI" type="java.lang.String"
                          value="http://apps.who.int/gho/athena/data/GHO/cci.json?profile=simple&amp;filter=COUNTRY:*;RESIDENCEAREATYPE:*"></constructor-arg>
     </bean>
@@ -12,29 +12,31 @@ http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
         <constructor-arg name="data" type="java.lang.String"
                          value="#{deathByEnvironmentRequester.getData()}"></constructor-arg>
     </bean>
-    <bean id="deathByEnvironmentStatistics" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <bean id="deathByEnvironmentStatistics" class="org.springframework.beans.factory.config.ListFactoryBean"
+          lazy-init="true">
         <property name="targetListClass">
             <value>java.util.ArrayList</value>
         </property>
         <property name="sourceList" value="#{deathByEnvironmentDataParser.receiveStatistic()}"></property>
     </bean>
 
-    <bean id="lifeExpectancyDataRequester" class="org.http.data_getter.requester.DataRequester">
+    <bean id="lifeExpectancyDataRequester" class="org.http.data_getter.requester.DataRequester" lazy-init="true">
         <constructor-arg name="URI" type="java.lang.String"
                          value="http://apps.who.int/gho/athena/data/GHO/WHOSIS_000001,WHOSIS_000015.json?profile=simple&amp;filter=COUNTRY:*"></constructor-arg>
     </bean>
-    <bean id="lifeExpectancyDataParser" class="org.data_parser.LifeExpectancyDataParser">
+    <bean id="lifeExpectancyDataParser" class="org.data_parser.LifeExpectancyDataParser" lazy-init="true">
         <constructor-arg name="data" type="java.lang.String"
                          value="#{lifeExpectancyDataRequester.getData()}"></constructor-arg>
     </bean>
-    <bean id="lifeExpectancyStatustics" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <bean id="lifeExpectancyStatustics" class="org.springframework.beans.factory.config.ListFactoryBean"
+          lazy-init="true">
         <property name="targetListClass">
             <value>java.util.ArrayList</value>
         </property>
         <property name="sourceList" value="#{lifeExpectancyDataParser.receiveStatistic()}"></property>
     </bean>
 
-    <bean id="tobaccoUseDataByCountryRequester" class="org.http.data_getter.requester.DataRequester">
+    <bean id="tobaccoUseDataByCountryRequester" class="org.http.data_getter.requester.DataRequester" lazy-init="true">
         <constructor-arg name="URI" type="java.lang.String"
                          value="http://apps.who.int/gho/athena/data/GHO/TOBACCO_0000000344,TOBACCO_0000000192.json?profile=simple&amp;filter=COUNTRY:*;REGION:*;SEX:*"></constructor-arg>
     </bean>
@@ -42,7 +44,8 @@ http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
         <constructor-arg name="data" type="java.lang.String"
                          value="#{tobaccoUseDataByCountryRequester.getData()}"></constructor-arg>
     </bean>
-    <bean id="tobaccoUseDataByCountryStatistics" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <bean id="tobaccoUseDataByCountryStatistics" class="org.springframework.beans.factory.config.ListFactoryBean"
+          lazy-init="true">
         <property name="targetListClass">
             <value>java.util.ArrayList</value>
         </property>

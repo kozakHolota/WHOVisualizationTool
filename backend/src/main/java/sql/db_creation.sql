@@ -2,7 +2,9 @@ DROP DATABASE IF EXISTS statistical_storage;
 CREATE DATABASE statistical_storage;
 USE statistical_storage;
 CREATE TABLE year (id INT NOT NULL AUTO_INCREMENT, year INT, PRIMARY KEY (id), INDEX year_ind(id))  ENGINE = InnoDB;
-CREATE TABLE region (id INT NOT NULL AUTO_INCREMENT, region_code VARCHAR(100) NOT NULL, PRIMARY KEY (id), INDEX region_ind(id))  ENGINE = InnoDB;
+CREATE TABLE region (id INT NOT NULL AUTO_INCREMENT, 
+region_code VARCHAR(100) NOT NULL, PRIMARY KEY (id), 
+INDEX region_ind(id))  ENGINE = InnoDB;
 CREATE TABLE country (id INT NOT NULL AUTO_INCREMENT,
 region_id INT NOT NULL,
 country_code VARCHAR(100) NOT NULL,
@@ -48,3 +50,12 @@ PRIMARY KEY (id)
 )  ENGINE = InnoDB;
 
 CREATE UNIQUE INDEX death_by_environment_statistics_uq ON death_by_environment_statistics (year_id, country_id, measurenment);
+
+CREATE TABLE statistics (
+id INT NOT NULL AUTO_INCREMENT,
+table_name VARCHAR(100) NOT NULL, 
+statistic_summary VARCHAR(255) NOT NULL, 
+PRIMARY KEY (id)
+)  ENGINE = InnoDB;
+
+CREATE UNIQUE INDEX statistics_uq ON statistics (table_name, statistic_summary);

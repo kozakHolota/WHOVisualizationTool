@@ -1,14 +1,49 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
 <html>
 <head>
 <%@ page isELIgnored="false" %>
-<title>Login Page</title>
+<script type="text/javascript" src="/webapp/jquery"></script>
+<style type="text/css">
+<%@include file="css/login_css.jsp" %>
+</style>
+<script type="text/javascript" language="javascript">
+<%@include file="js/login_page_helper_js.jsp" %>
+$(document).ready(function() {
+var lang = "uk";
+set_langs_menu("lang");
+set_flag(lang);
+set_labels(lang);
+$('#lang').change(function() {
+set_flag($(this).val());
+set_labels($(this).val());
+});
+
+$('#log').submit(function(event){
+$('.labeled').each(function(){
+if($(this).val() == "") {
+$(this).css("border", "2px solid red");
+$(this).focus();
+event.preventDefault();
+return false;
+}
+});
+});
+});
+</script>
+<title></title>
 </head>
 <body>
-<h2>Login Page</h2><br>
+<div id="container">
 <form name="log" id="log" action="/webapp/login" method="POST">
-Loign: <input type="text" name="username"><br>
-Password: <input type="password" name="password"><br>
-<input type="submit"> <input type="reset">
+<label id="username_label">
+</label>
+<label id="password_label">
+</label>
+<label><select id="lang" name="lang" class="labeled_select"></select><br><div id="flag"></div></label><br>
+<input type="reset" id="reset"><input type="submit" id="submit">
 </form>
+</div>
+<%@include file="page_parts/footer.jsp" %>
 </body>
 </html>

@@ -14,6 +14,13 @@ http://www.springframework.org/schema/util  http://www.springframework.org/schem
         <property name="username" value="#{propSource[username]}"/>
         <property name="password" value="#{propSource[password]}"/>
     </bean>
+    <bean id="uiDataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="#{propSource[driverClassName]}"/>
+        <property name="url" value="#{propSource[ui_localization_url]}"/>
+        <property name="username" value="#{propSource[username]}"/>
+        <property name="password" value="#{propSource[password]}"/>
+    </bean>
     <bean id="accountDbDataSource"
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="#{propSource[driverClassName]}"/>
@@ -27,6 +34,13 @@ http://www.springframework.org/schema/util  http://www.springframework.org/schem
         <property name="dataSource"
                   ref="dataSource"/>
     </bean>
+
+    <bean id="UILocTransactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource"
+                  ref="uiDataSource"/>
+    </bean>
+
     <bean id="accountDbTransactionManager"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource"

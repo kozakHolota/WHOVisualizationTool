@@ -6,14 +6,14 @@ import java.lang.reflect.InvocationTargetException;
  * Created by chmel on 26.02.17.
  */
 public enum Statistics {
-    LIFE_EXPECTANCY("life_expectancy", LifeExpectancyDao.class),
-    DEATH_ATTRIBUTABLE_TO_THE_ENVIRONMENT("death_attributable_to_the_environment", DeathsAttributableToTheEnvironmentDao.class),
-    TOBACCO_USAGE_BY_COUNTRY("tobacco_usage", TobaccoUseDataByCountryDao.class);
+    LIFE_EXPECTANCY("life_statistic", LifeExpectancyDao.class),
+    DEATH_ATTRIBUTABLE_TO_THE_ENVIRONMENT("death_by_environment_statistics", DeathsAttributableToTheEnvironmentDao.class),
+    TOBACCO_USAGE_BY_COUNTRY("tobacco_usage_statistic", TobaccoUseDataByCountryDao.class);
 
     private String name;
     private Class<StatisticGetterDao> statistic;
 
-    private Statistics(String name, Class statistic) {
+    Statistics(String name, Class statistic) {
         this.name = name;
         this.statistic = statistic;
     }

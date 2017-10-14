@@ -2,8 +2,9 @@ package org.storage_puller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.simple.parser.ParseException;
+import org.localization.Languages;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -13,12 +14,12 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.storage_puller.insert_data_models.DataModel;
 import org.storage_puller.insert_data_models.TobaccoUsageByCountryUsageModel;
 
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 /**
  * Created by chmel on 22.01.17.
@@ -33,10 +34,6 @@ public class TobaccoUsageByCountryDataInserter implements DataInsert {
         this.dbHelper = new DBHelper(this.jdbcTemplateObject());
     }
 
-    @Override
-    public JdbcTemplate jdbcTemplateObject() {
-        return DataInsert.super.jdbcTemplateObject();
-    }
 
     @Override
     public void insert(List<DataModel> dms) {
@@ -45,14 +42,25 @@ public class TobaccoUsageByCountryDataInserter implements DataInsert {
         TransactionDefinition def = new DefaultTransactionDefinition();
         TransactionStatus status = transactionManager.getTransaction(def);
         JdbcTemplate jdbcTemplateObj = this.jdbcTemplateObject();
+        Function<String, String> locSQL = (String loc) -> "INSERT IGNORE INTO ui_local_storage." + loc + "_statistics (statistic_id, value) VALUES ((SELECT id FROM statistical_storage.statistics WHERE table_name = 'tobacco_usage_statistic'), ?)";
+        String statisticInfoSQL = "INSERT IGNORE INTO statistics (table_name, statistic_summary) VALUES ('tobacco_usage_statistic', ?)";
         String insertSQL = "INSERT IGNORE INTO death_by_environment_statistics (country_id, measurenment, year_id) VALUES (?, ?, ?)";
 
         try {
+            jdbcTemplateObj.update(statisticInfoSQL, dataModels.get(0).getMeasurementUnit());
+            for (Languages l : getLocLanguages()) {
+                log.info("Translating into " + l.getCode());
+                jdbcTemplateObj.update(locSQL.apply(l.getCode()), l.translate(dataModels.get(0).getMeasurementUnit()));
+            }
             jdbcTemplateObj.batchUpdate(insertSQL, new BatchPreparedStatementSetter() {
                 @Override
                 public void setValues(PreparedStatement ps, int i) throws SQLException {
                     TobaccoUsageByCountryUsageModel dataModel = dataModels.get(i);
-                    ps.setInt(1, dbHelper.getCountryId(dataModel.getCountry(), dataModel.getRegion()));
+                    try {
+                        ps.setInt(1, dbHelper.getCountryId(dataModel.getCountry(), dataModel.getRegion()));
+                    } catch (IOException | ParseException e) {
+                        e.printStackTrace();
+                    }
                     ps.setDouble(2, dataModel.getMeasurenment());
                     ps.setInt(3, dbHelper.getYearId(dataModel.getYear()));
                 }
