@@ -133,7 +133,7 @@ public class BackendServletController {
         HashMap<String, String> tokenAuthRes = _tokenAuthDao.checkLogin();
         if (tokenAuthRes.get("status").equals(LoginStatus.SUCCESS.toString())){
             _tokenAuthDao.clearHash();
-            jo.put("status", LoginStatus.LOGOUT);
+            jo.put("status", LoginStatus.LOGOUT.toString());
         } else {
             jo.put("status", tokenAuthRes.get("status"));
             jo.put("reason", tokenAuthRes.get("reason"));
@@ -393,6 +393,31 @@ public class BackendServletController {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
         responseHeaders.add("Content-Type", "application/json; charset=utf-8");
+        return new ResponseEntity<>(jo.toJSONString(), responseHeaders, status);
+    }
+
+    @RequestMapping(value = "/get_workspace_labels", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @ResponseBody
+    public ResponseEntity<String> get_workspace_labels(ModelMap loginModel,
+                                                       @RequestParam(value = "username", required = true) String userName,
+                                                       @RequestParam(value = "__token", required = true) String token,
+                                                       @RequestParam(value = "lang", required = true) String lang) {
+        JSONObject jo = new JSONObject();
+        HashMap<String, String> tokenAuthRes = new TokenAuthDao(userName, token).checkLogin();
+        HttpStatus status = HttpStatus.OK;
+        HttpHeaders responseHeaders = new HttpHeaders();
+        if (tokenAuthRes.get("status").equals(LoginStatus.SUCCESS.toString())) {
+            Languages lg = Languages.createFromCode(lang);
+            Map<String, String> labels = NecessaryDataHelper.getWorkSpaceLabels(lg);
+            labels.forEach(jo::put);
+            responseHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+            responseHeaders.add("Content-Type", "application/json; charset=utf-8");
+        } else {
+            jo.put("status", tokenAuthRes.get("status"));
+            jo.put("reason", tokenAuthRes.get("reason"));
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
         return new ResponseEntity<>(jo.toJSONString(), responseHeaders, status);
     }
 

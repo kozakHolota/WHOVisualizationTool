@@ -22,9 +22,6 @@ var labels_url = "/webapp/rest/get_login_page_labels";
         $('#password_label').append('<input type="password" name="password" id="password" class="labeled"/>');
         $('#submit').prop('value', parsed_data['LP_LOGIN_BUTTON_LABEL']);
         $('#reset').prop('value', parsed_data['LP_RESET_BUTTON_LABEL']);
-        $('#author').empty();
-        $('#author').append(parsed_data['FP_AUTHOR_SIGN']);
-        $('#contact_info').empty();
-        $('#contact_info').append(parsed_data['FP_AUTHOR_CONTACT'] + ': <a href="mailto:kozak_holota@gmail.com"> kozak_holota@gmail.com</a>.');
+        set_footer(parsed_data);
     });
 }

@@ -1,9 +1,28 @@
 <%@ page isELIgnored="false" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@include file="helper_core_js.jsp" %>
+<%@include file="canvas_chart_js.jsp" %>
 var lang = "${lang}";
 var userName = "${username}";
 var token = "${token}";
+var correlation_label = "";
+var stat_losung = "";
+var stat_title = "";
+var stat_legend_title = "";
+var main_stat_title, second_stat_title;
+var year = "";
+var menu_displayed = false;
+var canvas, ctx;
+var geo_region_label, country_label, sex_label;
+
+function logout()
+{
+  var form = $('<form></form>');
+  $(form).hide().attr('method','post').attr('action',"/webapp/logout");
+  $(form).append("<input type='hidden' name='username' value='" + userName + "'/>");
+  $(form).append("<input type='hidden' name='__token' value='" + token + "'/>");
+  $(form).appendTo('body').submit();
+}
 
 function get_countries(userName, token, region_code){
     var countries_url = "/webapp/rest/get_countries";
@@ -157,6 +176,67 @@ $.ajax({
      });
 }
 
+function set_workspace_labels() {
+var labels_url = "/webapp/rest/get_workspace_labels";
+$.ajax({
+                            url: labels_url,
+                            type: "POST",
+                            dataType: "json",
+                            data: {
+                                username: userName,
+                               __token: token,
+                               lang: lang
+                               }
+                        })
+                        .done(function (data) {
+                                var parsed_data = $.parseJSON(JSON.stringify(data));
+                                year = parsed_data['WS_YEAR_LABEL'];
+                                stat_legend_title = parsed_data['WS_LEGEND_TITLE_LABEL'];
+                                stat_losung = parsed_data['WS_STAT_LOSUNG_LABEL'];
+                                stat_title = parsed_data['WS_STAT_TITLE_LABEL'];
+                                correlation_label = parsed_data['WS_CORRELATION_LABEL'];
+                                first_stat_title = parsed_data['WS_FIRST_CHART_LABEL'];
+                                second_stat_title = parsed_data['WS_SECOND_CHART_LABEL'];
+                                geo_region_label = parsed_data['WS_REGION_LABEL'];
+                                country_label = parsed_data['WS_COUNTRY_LABEL'];
+                                sex_label = parsed_data['WS_SEX_LEGEND'];
+                                $('title').empty();
+                                $('title').append(parsed_data['MW_MAIN_TITLE'] + " - " + parsed_data['WS_SUBTITLE']);
+                                $("#get_chart").empty();
+                                $("#get_chart").val(parsed_data['WS_STATISTIC_BTN_LABEL']);
+                                $("#chart_legend").empty();
+                                $("#chart_legend").append(parsed_data['WS_CHART_LEGEND_LABEL']);
+                                $("#first_chart_label").empty();
+                                $("#first_chart_label").append(parsed_data['WS_FIRST_CHART_LABEL']);
+                                $("#second_chart_label").empty();
+                                $("#second_chart_label").append(parsed_data['WS_SECOND_CHART_LABEL']);
+                                $("#geo_dim_legend").empty();
+                                $("#geo_dim_legend").append(parsed_data['WS_GEO_DIM_LABEL']);
+                                $("#geo_region").empty();
+                                $("#geo_region").append(parsed_data['WS_REGION_LABEL']);
+                                $("#country").empty();
+                                $("#country").append(parsed_data['WS_COUNTRY_LABEL']);
+                                $("#sex_label").empty();
+                                $("#sex_label").append(parsed_data['WS_SEX_LEGEND']);
+                                $("#years_legend").empty();
+                                $("#years_legend").append(parsed_data['WS_YEARS_LEGEND']);
+                                set_footer(parsed_data);
+                        });
+}
+
+function set_all(language=lang) {
+if (language != lang) { lang = language; }
+set_langs_menu("language");
+$('#lang').val(lang);
+set_flag(lang);
+set_workspace_labels();
+get_regions();
+get_years();
+get_countries(userName, token, $('#region_code').val());
+get_all_statistics(userName, token);
+get_sexes(userName, token);
+}
+
 function display_statistics(){
         var myUrl = "/webapp/rest/get_chart";
         var main_chart_name = $('#main_chart_name').val();
@@ -185,109 +265,66 @@ function display_statistics(){
         })
         .done(function (data) {
             var parsed_data = $.parseJSON(JSON.stringify(data));
-            var y_vals = [];
-            $.merge(y_vals, parsed_data.main_chart_points);
-            $.merge(y_vals, parsed_data.second_chart_points);
-            $.unique(y_vals);
-            $("#statistic").html("<canvas id='statistical_graph' height='720' width='720'></canvas>");
-            $("#x_axis_div").html("<canvas id='x_axis_labels' height='15' width='720'></canvas>");
-            var x_axis = 0;
-            var canvas = $("#statistical_graph").get(0);
-            var lbl_canvas = $("#x_axis_labels").get(0);
-            var context = canvas.getContext('2d');
-            var lbl_context = lbl_canvas.getContext('2d');
+            CanvasChart.render(parsed_data.years, parsed_data.main_chart_points, parsed_data.second_chart_points);
 
-            lbl_context.lineWidth = 2;
-            lbl_context.fillStyle = "black";
-            lbl_context.beginPath();
-
-            context.lineWidth = 2;
-            context.beginPath();
-            context.translate(0,720);
-            context.scale(1,-1);
-
-            context.beginPath();
-
-            $.each(parsed_data.years, function(index, item) {
-            if(index == 0) {context.moveTo(x_axis, parsed_data.main_chart_points[index] + 15);} else {
-                  context.lineTo(x_axis, parsed_data.main_chart_points[index] + 15);
-                  }
-
-                  x_axis += 50;
-            });
-            context.strokeStyle = "red";
-            context.stroke();
-
-            x_axis = 0;
-            context.beginPath();
-            $.each(parsed_data.years, function(index, item) {
-                        if(index == 0) {context.moveTo(x_axis, parsed_data.second_chart_points[index] + 15);} else {
-                              context.lineTo(x_axis, parsed_data.second_chart_points[index] + 15);
-                              }
-
-                              x_axis += 50;
-                        });
-            context.strokeStyle = "green";
-            context.stroke();
-
-
-            x_axis = 0;
-            context.beginPath();
-            lbl_context.beginPath();
-            $.each(parsed_data.years, function(index, item) {
-                                    if(index == 0) {
-                                    context.moveTo(x_axis, 15);
-                                    }
-                                    else {
-                                    context.lineTo(x_axis, 15);
-                                    context.lineTo(x_axis, 11);
-                                    context.moveTo(x_axis, 15);
-                                    lbl_context.font = "10px Arial";
-                                    lbl_context.fillText(item, x_axis - 7, 10);
-                                    }
-                                    x_axis += 50;
-                                    });
-
-
-            context.lineTo(x_axis + 50, 15);
-            context.lineTo(x_axis + 45, 19);
-            context.moveTo(x_axis + 50, 15);
-            context.lineTo(x_axis + 45, 11);
-            context.strokeStyle = "black";
-            context.stroke();
-
-            context.beginPath();
-            var cur_y = 0;
-            context.moveTo(0, 15);
-            $.each(y_vals, function(index, item) {
-            cur_y = item + 15;
-            context.lineTo(0, cur_y);
-            });
-
-            context.lineTo(0, cur_y + 30);
-            context.strokeStyle = "black";
-            context.lineWidth = 2;
-            context.stroke();
-
-            canvas.addEventListener('mousemove', function(event){
-            var rect = canvas.getBoundingClientRect();
-            var x = event.layerX - rect.right;
-            var y = event.layerY - rect.bottom;
-            context.font = "10px Arial";
-            context.fillText(y - 15, x, y + 5);
-            });
+            $("#statstical_legend").css("border", "2px solid black");
+            legend_ctx.clearRect(0, 0, legend_canvas.width, legend_canvas.height);
+            legend_ctx.restore();
+            legend_ctx.save();
+            legend_ctx.font = 'bold 12pt Arial';
+            legend_ctx.textAlign = "center";
+            legend_ctx.fillText(stat_legend_title, legend_canvas.width/2, 15);
+            legend_ctx.strokeStyle = 'red';
+            legend_ctx.beginPath();
+            legend_ctx.moveTo(5, 30);
+            legend_ctx.lineTo(135, 30);
+            legend_ctx.stroke();
+            legend_ctx.closePath();
+            legend_ctx.font = '9pt Arial';
+            legend_ctx.textAlign = "right";
+            legend_ctx.fillText($('#main_chart_name').find(':selected').text(), 340, 30);
+            legend_ctx.strokeStyle = 'green';
+            legend_ctx.beginPath();
+            legend_ctx.moveTo(5, 60);
+            legend_ctx.lineTo(135, 60);
+            legend_ctx.stroke();
+            legend_ctx.closePath();
+            legend_ctx.fillText($('#second_chart_name').find(':selected').text(), 340, 60);
 
             var html = "";
-            html += "<table id='statistic'><tr><th>Рік</th><th>" + $('#main_chart_name').find(':selected').text() + "</th><th>" + $('#second_chart_name').find(':selected').text() + "</th></tr>";
+            html += "<table id='statistical_table'>"
+            + "<thead>"
+            + "<caption>"
+            + geo_region_label + ": " + $('#region_code').find(':selected').text()
+            + "<br>"
+            + country_label + ": " + $('#country_code').find(':selected').text()
+            + "<br>"
+            + sex_label + ": " + $('#sex').find(':selected').text()
+            + "<br>"
+            + correlation_label + ": " + parsed_data.correlation_coefficient
+            + "</caption><tr><th>"
+            + year
+            + "</th><th>"
+            + $('#main_chart_name').find(':selected').text()
+            + "</th><th>" + $('#second_chart_name').find(':selected').text()
+            + "</th></tr><tr><th></th><th><a href='"
+            + parsed_data.main_chart_urls[0]
+            + "'>JSON</a> &nbsp; <a href='"
+            + parsed_data.main_chart_urls[1]
+            + "'>CSV</a></th><th><a href='"
+            + parsed_data.second_chart_urls[0]
+            + "'>JSON</a> &nbsp; <a href='"
+            + parsed_data.second_chart_urls[1]
+            + "'>CSV</a></th></tr>"
+            + "</thead>"
+            + "<tbody>";
+
             $.each(parsed_data.years, function(i, item) {
                 var row = "<tr><td>" + parsed_data.years[i] + "</td><td>" + parsed_data.main_chart_points[i] + "</td><td>"+ parsed_data.second_chart_points[i] + "</td></tr>";
                 html += row;
             });
 
-            html += "<tr><td>Кореляція</td><td colspan=2>" + parsed_data.correlation_coefficient + "</td></tr>";
-
-            html += + "</table>";
+            html += "</tbody>" + "</table>";
             $('#statistical_data').html(html);
-
         });
 }

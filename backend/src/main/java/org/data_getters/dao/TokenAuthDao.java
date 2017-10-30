@@ -8,10 +8,6 @@ import org.data_getters.model.UserTokenAuthentication;
 import org.data_getters.row_mapper.UserTokenMapper;
 import org.data_source.JdbcTemplateGetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -28,7 +24,7 @@ public class TokenAuthDao implements LoginDao {
         jdbcTemplate = JdbcTemplateGetter.getAccountDbJdbcTemplate();
         SQL = "SELECT u.username, u.is_admin, ht.cred_hash, ht.due_date FROM user u \n" +
                 "JOIN hash_table ht ON u.id=ht.user_id \n" +
-                "WHERE u.username = ?";;
+                "WHERE u.username = ?";
     }
 
     private Log log = LogFactory.getLog(TokenAuthDao.class);
@@ -124,7 +120,7 @@ public class TokenAuthDao implements LoginDao {
     }
 
     public void clearHash()  {
-        SQL = "DELETE FROM hash_table WHERE user_id = ?";
-        jdbcTemplate.update(SQL, this.getUserId(this.userName));
+        SQL = "DELETE FROM hash_table WHERE user_id = " + this.getUserId(this.userName);
+        jdbcTemplate.update(SQL);
     }
 }

@@ -40,8 +40,8 @@ return false;
 </label>
 <label id="password_label">
 </label>
-<label><select id="lang" name="lang" class="labeled_select"></select><br><div id="flag"></div></label><br>
-<input type="reset" id="reset"><input type="submit" id="submit">
+<label><select id="lang" name="lang" class="labeled"></select><br><div id="flag"></div></label><br>
+<input type="reset" id="reset" class="passive_button"><input type="submit" id="submit" class="active_button">
 </form>
 </div>
 <%@include file="page_parts/footer.jsp" %>

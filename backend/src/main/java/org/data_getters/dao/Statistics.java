@@ -2,13 +2,15 @@ package org.data_getters.dao;
 
 import java.lang.reflect.InvocationTargetException;
 
+import static org.statistics.Statistics.*;
+
 /**
  * Created by chmel on 26.02.17.
  */
 public enum Statistics {
-    LIFE_EXPECTANCY("life_statistic", LifeExpectancyDao.class),
-    DEATH_ATTRIBUTABLE_TO_THE_ENVIRONMENT("death_by_environment_statistics", DeathsAttributableToTheEnvironmentDao.class),
-    TOBACCO_USAGE_BY_COUNTRY("tobacco_usage_statistic", TobaccoUseDataByCountryDao.class);
+    LIFE_EXPECTANCY(LIFE_STATISTIC.toString(), LifeExpectancyDao.class),
+    DEATH_ATTRIBUTABLE_TO_THE_ENVIRONMENT(DEATH_BY_ENVIRONMENT_STATISTICS.toString(), DeathsAttributableToTheEnvironmentDao.class),
+    TOBACCO_USAGE_BY_COUNTRY(TOBACCO_USAGE_STATISTIC.toString(), TobaccoUseDataByCountryDao.class);
 
     private String name;
     private Class<StatisticGetterDao> statistic;

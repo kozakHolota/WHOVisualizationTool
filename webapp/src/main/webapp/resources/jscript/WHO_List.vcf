@@ -1,0 +1,10 @@
+BEGIN:VCARD
+VERSION;TYPE=WORK:3.0
+FN;CHARSET=UTF-8:Dr Tedros Adhanom Ghebreyesus
+N;CHARSET=UTF-8:Dr Tedros Adhanom Ghebreyesus;;;;
+PROFILE:VCARD
+ADR;CHARSET=UTF-8:;;Avenue Appia 20;Geneva 27;;1211;Switzerland
+EMAIL:worldhealthupdates@who.int
+ORG;CHARSET=UTF-8:World Health Organization
+URL:http://www.who.int
+END:VCARD

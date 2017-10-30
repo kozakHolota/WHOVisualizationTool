@@ -67,6 +67,17 @@ public class WebContentServletController {
         return "workspace";
     }
 
+    @RequestMapping(value = "/logout", method = RequestMethod.POST)
+    public String logout(ModelMap model,
+                         @RequestParam(value = "username", required = true) String userName,
+                         @RequestParam(value = "__token", required = true) String token) throws IOException, ParseException, KeyManagementException, NoSuchAlgorithmException {
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("username", userName);
+        params.put("__token", token);
+        AtomicReference<JSONObject> res = new AtomicReference<>(this.rc._get("/rest/logout", params));
+        return "login";
+    }
+
     @RequestMapping(value = "/check_login", method = RequestMethod.POST)
     public String checkLogin(ModelMap model,
                              @RequestParam(value = "username", required = true) String userName,

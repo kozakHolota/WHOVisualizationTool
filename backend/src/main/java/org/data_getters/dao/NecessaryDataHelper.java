@@ -89,7 +89,25 @@ public class NecessaryDataHelper {
     }
 
     public static Map<String, String> getLoginPageLabels(Languages lang) {
-        String SQL = "SELECT m.message AS message_key, lm.label AS label FROM ui_local_storage." + lang.getCode() + "_messages lm JOIN ui_local_storage.messages m ON m.id=lm.message_id";
+        String SQL = "SELECT m.message AS message_key, lm.label AS label " +
+                "FROM ui_local_storage." + lang.getCode() + "_messages lm " +
+                "JOIN ui_local_storage.messages m ON m.id=lm.message_id " +
+                "WHERE m.message LIKE 'MW_%'" +
+                "OR m.message LIKE 'LP_%' " +
+                "OR m.message LIKE 'FP_%'";
+        List<Map<String, Object>> s = jdbcTemplate.queryForList(SQL);
+        Map<String, String> y = new HashMap<>();
+        s.forEach(item -> y.put(item.get("message_key").toString(), item.get("label").toString()));
+        return y;
+    }
+
+    public static Map<String, String> getWorkSpaceLabels(Languages lang) {
+        String SQL = "SELECT m.message AS message_key, lm.label AS label " +
+                "FROM ui_local_storage." + lang.getCode() + "_messages lm " +
+                "JOIN ui_local_storage.messages m ON m.id=lm.message_id " +
+                "WHERE m.message LIKE 'MW_%'" +
+                "OR m.message LIKE 'ws_%' " +
+                "OR m.message LIKE 'FP_%'";
         List<Map<String, Object>> s = jdbcTemplate.queryForList(SQL);
         Map<String, String> y = new HashMap<>();
         s.forEach(item -> y.put(item.get("message_key").toString(), item.get("label").toString()));

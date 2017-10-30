@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import org.data_getters.dao.StatisticClauseFields;
 import org.data_getters.dao.StatisticGetterDao;
 import org.data_getters.dao.Statistics;
+import org.http.data_getter.requester.DataRequester;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -20,10 +21,13 @@ import java.util.List;
 public class DataGetter {
     private final Logger log = Logger.getLogger(DataGetter.class);
     private StatisticGetterDao mainChart, secondChart;
+    private DataRequester mainRequester, secondRequester;
 
     public DataGetter(String mainChartName, String secondChart) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         this.mainChart = Statistics.getInstance(mainChartName);
         this.secondChart = Statistics.getInstance(secondChart);
+        this.mainRequester = org.statistics.Statistics.getStatRequester(mainChartName);
+        this.secondRequester = org.statistics.Statistics.getStatRequester(secondChart);
     }
 
     public DataGetter addClause(StatisticClauseFields scf, Object value) {
@@ -69,8 +73,8 @@ public class DataGetter {
         List<Integer> mainChartYears = new ArrayList<>();
         List<Integer> secondChartYears = new ArrayList<>();
         List<HashMap<Integer, ArrayList<Double>>> noramlizedData = new ArrayList<>();
-        HashMap<Integer, Double> mainChartMetrics = new HashMap<>();
-        HashMap<Integer, Double> secondChartMetrics = new HashMap<>();
+        HashMap<Integer, Double> mainChartMetrics;
+        HashMap<Integer, Double> secondChartMetrics;
         try {
             mainChartMetrics = this.mainChart.getMetrics();
             this.log.debug("Got main chart metrics: " + mainChartMetrics);
@@ -173,10 +177,19 @@ public class DataGetter {
         this.log.debug("Y2 axis view: " + secondChart);
         Double coefficient = this.getCorrellationCoefficient(mainChart, secondChart);
         this.log.debug("Correlation coefficient is " + coefficient);
+        JSONArray main_chart_urls = new JSONArray();
+        main_chart_urls.add(this.mainRequester.getJsonURI());
+        main_chart_urls.add(this.mainRequester.getCsvURI());
+
+        JSONArray second_chart_urls = new JSONArray();
+        second_chart_urls.add(this.secondRequester.getJsonURI());
+        second_chart_urls.add(this.secondRequester.getCsvURI());
 
         jo.put("years", years);
         jo.put("main_chart_points", mainChart);
+        jo.put("main_chart_urls", main_chart_urls);
         jo.put("second_chart_points", secondChart);
+        jo.put("second_chart_urls", second_chart_urls);
         jo.put("correlation_coefficient", coefficient);
 
         return jo;

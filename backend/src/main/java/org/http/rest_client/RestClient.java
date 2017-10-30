@@ -75,21 +75,21 @@ public class RestClient {
         conn.setRequestMethod( "POST" );
         conn.setRequestProperty( "Content-Type", "application/x-www-form-urlencoded");
         conn.setRequestProperty( "charset", "utf-8");
-        String requestBody = "";
+        StringBuilder requestBody = new StringBuilder();
         for(String key: params.keySet()){
-            requestBody += ""
+            requestBody.append(""
                     .concat(key)
                     .concat("=")
                     .concat(params.get(key))
-                    .concat("&");
+                    .concat("&"));
         }
         conn.setRequestProperty( "Content-Length", Integer.toString(requestBody.length()));
         conn.setUseCaches( false );
 
-        log.debug("Performing POST with parameters: ".concat(requestBody));
+        log.debug("Performing POST with parameters: ".concat(requestBody.toString()));
 
         OutputStream os = conn.getOutputStream();
-        os.write(requestBody.getBytes());
+        os.write(requestBody.toString().getBytes());
         os.flush();
         if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
             throw new RuntimeException("Failed : HTTP error code : "

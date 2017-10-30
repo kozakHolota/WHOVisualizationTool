@@ -12,6 +12,7 @@ $.ajax(
         })
     .done(function (data) {
         var parsed_data = $.parseJSON(JSON.stringify(data));
+         $('#' + dropdown_id).empty();
         $.each(parsed_data, function(language_code, language_name){
             $('#' + dropdown_id).append(create_option(language_code, language_name));
         });

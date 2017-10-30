@@ -2,6 +2,7 @@ package org.storage_puller;
 
 import org.apache.log4j.Logger;
 import org.json.simple.parser.ParseException;
+import org.statistics.Statistics;
 import org.storage_puller.insert_data_models.DataModel;
 import org.storage_puller.insert_data_models.DeathsAttributableToTheEnvironmentDataModel;
 import org.storage_puller.insert_data_models.LifeExpectancyModel;
@@ -18,24 +19,26 @@ public class DBPuller {
     private final Logger log = Logger.getLogger(DBPuller.class);
 
     private DataInsert getDataInserter(String arg) {
-        switch (arg) {
-            case "death_by_environment_statistics":
+        Statistics s = Statistics.getInstance(arg);
+        switch (s) {
+            case DEATH_BY_ENVIRONMENT_STATISTICS:
                 return new DeathsAttributableToTheEnvironmentDataInsert();
-            case "life_statistic":
+            case LIFE_STATISTIC:
                 return new LifeExpectancyInserter();
-            case "tobacco_usage_statistic":
+            case TOBACCO_USAGE_STATISTIC:
                 return new TobaccoUsageByCountryDataInserter();
         }
         return null;
     }
 
     public DataModel getDataModel(String arg, Hashtable<String, String> data) {
-        switch (arg) {
-            case "death_by_environment_statistics":
+        Statistics s = Statistics.getInstance(arg);
+        switch (s) {
+            case DEATH_BY_ENVIRONMENT_STATISTICS:
                 return new DeathsAttributableToTheEnvironmentDataModel(data);
-            case "life_statistic":
+            case LIFE_STATISTIC:
                 return new LifeExpectancyModel(data);
-            case "tobacco_usage_statistic":
+            case TOBACCO_USAGE_STATISTIC:
                 return new TobaccoUsageByCountryUsageModel(data);
         }
         return null;
