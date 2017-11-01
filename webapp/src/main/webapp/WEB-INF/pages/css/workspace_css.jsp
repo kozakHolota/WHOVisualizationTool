@@ -210,6 +210,20 @@ width: 100px;
   width: 1200px;
   height: 600px;
   position: fixed;
+  display: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+}
+
+#start_article {
+  width: 1200px;
+  height: 600px;
+  position: fixed;
   display: flex;
   top: 50%;
   left: 50%;

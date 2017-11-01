@@ -266,7 +266,8 @@ function display_statistics(){
         .done(function (data) {
             var parsed_data = $.parseJSON(JSON.stringify(data));
             CanvasChart.render(parsed_data.years, parsed_data.main_chart_points, parsed_data.second_chart_points);
-
+            $("#start_article").css("display", "none");
+            $("#statistical_box").css("display", "flex");
             $("#statstical_legend").css("border", "2px solid black");
             legend_ctx.clearRect(0, 0, legend_canvas.width, legend_canvas.height);
             legend_ctx.restore();
